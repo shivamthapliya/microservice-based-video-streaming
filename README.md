@@ -1,98 +1,98 @@
-# Microservice-Based Adaptive Bitrate Video Streaming Platform
+# 🎥 Microservice-Based Adaptive Bitrate Video Streaming Platform
 
+A fully scalable **microservice-based video streaming platform** that supports:
 
-This project is a full microservice-based adaptive bitrate video streaming platform, designed to handle large-scale video uploads, automatic transcoding, and high-performance global delivery using Kubernetes and AWS services.
+- Large video uploads  
+- Automatic transcoding into multiple resolutions  
+- Event-driven processing with SQS  
+- Adaptive HLS streaming based on bandwidth  
+- Kubernetes deployment on AWS EKS  
 
-The system enables users to upload videos, processes them asynchronously, and streams them through an adaptive player that switches video quality based on real-time network conditions.
+This system processes videos asynchronously and streams them using HLS, automatically adjusting quality in real time.
 
-🚀 Architecture & Features
-1. Microservice Architecture
+---
 
-Independent services for:
+# 🚀 Architecture & Features
 
-Auth Service – Sign up, login, verification with secure token handling
+## **1. Microservice Architecture**
 
-Upload Service – Handles video uploads, multipart S3 uploads
+Includes the following independent services:
 
-Transcoding Service – Converts videos into multiple resolutions (240p, 360p, 480p) using FFmpeg
+- **Auth Service** – Sign up, login, verification with secure token handling  
+- **Upload Service** – Handles video uploads & multipart S3 uploads  
+- **Transcoding Service** – Converts videos to multiple resolutions (240p, 360p, 480p) using FFmpeg  
+- **Streaming Service** – Serves HLS playlists and video segments (`.m3u8`)  
+- **Notification/Callback Service** – Updates DB and users after processing  
 
-Streaming Service – Serves video segments (HLS .m3u8)
+---
 
-Notification/Callback Service – Updates user and database after processing
+## **2. Event-Driven Processing (SQS + S3)**
 
-2. Event-Driven Processing (SQS + S3)
+- Video upload → **S3 event trigger**  
+- S3 pushes message into **SQS queue**  
+- A worker pod pulls message → begins transcoding  
+- Decoupled architecture → **scalable, fault-tolerant, high throughput**  
 
-Upload triggers an S3 event
+---
 
-The event pushes a message into SQS
+## **3. Kubernetes (EKS) Deployment**
 
-A worker pod pulls the message → starts transcoding
+- Autoscaling based on CPU usage or SQS queue depth  
+- Each pod handles **one transcoding job**  
+- NGINX Ingress Controller for routing  
+- Pod-to-pod communication similar to a service mesh  
 
-Decoupled architecture = scalable + fault tolerant
+---
 
-3. Kubernetes (EKS) Deployment
+## **4. Adaptive Bitrate Streaming (HLS)**
 
-Pods autoscale based on CPU/queue depth
+- Player automatically selects best resolution  
+- `.m3u8` master playlist supports multi-bitrate streaming  
+- Ready for CDN distribution  
 
-Each transcoding job runs one file per pod
+---
 
-NGINX Ingress Controller for public endpoints
+## **5. Authentication (AWS Cognito)**
 
-Service Mesh-like routing between pods
+- Secure token-based authentication  
+- Role-based access  
+- Email verification flow  
 
-4. Adaptive Bitrate Streaming (HLS)
+---
 
-Player selects best quality based on bandwidth
+## **6. Storage Architecture**
 
-.m3u8 master playlist automatically switches resolutions
+- Raw uploads → **S3 Bucket**  
+- Processed HLS segments → **HLS output folder in S3**  
+- **MySQL** used to store:
+  - Video metadata  
+  - Processing status  
+  - Playback links  
 
-CDN ready for global low-latency delivery
+---
 
-5. Authentication (AWS Cognito)
+# 📸 Screenshots
 
-Secure token-based session management
+## **🔐 Verification & Authentication**
 
-Role-based access
+<img src="images/login.png" width="650" />
 
-Email verification flow
+<img src="images/signup.png" width="650" />
 
-6. Storage
+<img src="images/verification.png" width="650" />
 
-Raw video → S3 bucket
+---
 
-Transcoded segments → HLS folder in S3
+## **⬆️ Upload Flow**
 
-Database (MySql) tracks:
+<img src="images/ss.png" width="650" />
 
-Video metadata
+<img src="images/ss1.png" width="650" />
 
-Processing status
+---
 
-Playback links
+## **🎬 Player UI (Adaptive Streaming)**
 
+<img src="images/ss3.png" width="650" />
 
-
-📸 Screenshots
-
-Verification & Login
-## verification and login
-<img src="images/login.png" width="650">
-
-<img src="images/signup.png" width="650">
-
-<img src="images/verification.png" width="650">
-
-
-## Upload Flow
-Upload Flow
-<img src="images/ss.png" width="650">
-
-<img src="images/ss1.png" width="650">
-
-
-## Player UI
-Player UI
-<img src="images/ss3.png" width="650">
-
-<img src="images/ss2.png" width="650">
-
+<img src="images/ss2.png" width="650" />
