@@ -3,7 +3,7 @@ import { fetchAuthSession } from "aws-amplify/auth";
 
 // ✅ Correct Vite environment variable usage
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL, // example: https://94fv9s1dxj.execute-api.ap-south-1.amazonaws.com
+  baseURL: import.meta.env.VITE_VIDEOAPI_BASE_URL, // example: https://94fv9s1dxj.execute-api.ap-south-1.amazonaws.com
 });
 
 // ✅ Intercept every request and attach Cognito JWT

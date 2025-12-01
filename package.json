@@ -1,1 +1,5 @@
-{}
+{
+  "dependencies": {
+    "ioredis": "^5.8.2"
+  }
+}

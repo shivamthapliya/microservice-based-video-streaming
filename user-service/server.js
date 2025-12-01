@@ -12,7 +12,7 @@ app.use(express.json());
 
 app.get("/health", (req, res) => res.status(200).send("User Service Running"));
 
-app.use("/api/users", userRoutes);
+app.use("/users", userRoutes);
 
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));

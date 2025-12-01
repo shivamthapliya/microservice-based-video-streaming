@@ -2,6 +2,7 @@ import AWS from "aws-sdk";
 import fs from "fs";
 import path from "path";
 import ffmpeg from "fluent-ffmpeg";
+import axios from "axios";
 import { SQSClient, ReceiveMessageCommand, DeleteMessageCommand } from "@aws-sdk/client-sqs";
 
 // --- Configure AWS SDK v2 (S3 still uses v2 here) ---
@@ -39,6 +40,25 @@ export async function downloadFromS3(bucket, key, downloadDir = "downloads") {
   } catch (err) {
     console.error("❌ Failed to download from S3:", key, err.message);
     throw err;
+  }
+}
+ //notify lambda 
+export async function notifyWebSocket({userId, videoId, status}) {
+  const url = process.env.WEBSOCKET_HTTP_ENDPOINT; 
+
+  try {
+    await axios.post(url, {
+      action: "notify",
+      userId,
+      videoId,
+      status
+    });
+
+    console.log("🔔 NOTIFIED WS:", { userId, videoId, status });
+
+  } catch (err) {
+    // console.log("error from notify",err);
+    console.error("❌ WS notify failed:", err.response?.data || err.message);
   }
 }
 

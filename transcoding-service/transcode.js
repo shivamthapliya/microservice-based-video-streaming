@@ -2,6 +2,7 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import { db } from "./db.js";
+
 import {
   s3,
   pollSqs,
@@ -9,6 +10,7 @@ import {
   safeDeleteMessage,
   downloadFromS3,
   uploadToS3,
+  notifyWebSocket
 } from "./utils.js";
 
 dotenv.config();
@@ -41,6 +43,7 @@ async function uploadDirectory(localDir, bucket, prefix) {
 // --- Polling loop ---
 async function pollSQS() {
   try {
+    // console.log("test notifyWebSocket");
     const Messages = await pollSqs();
     if (!Messages.length) return;
 
@@ -68,7 +71,12 @@ async function pollSQS() {
 
         // --- Download video ---
         const inputPath = await downloadFromS3(bucket, key);
-
+        try{
+                await notifyWebSocket({userId, videoId, status: "processing"});
+              }
+              catch(err){
+                console.error("❌ WebSocket notification failed:", err.message);
+              }
         // --- Transcode to HLS ---
         const outputDir = path.join("outputs", Date.now().toString());
         fs.mkdirSync(outputDir, { recursive: true });
@@ -90,6 +98,12 @@ async function pollSQS() {
 
             if (result.affectedRows > 0) {
               console.log(`✅ Updated video ${videoId} for user ${userId} as READY`);
+              try{
+                await notifyWebSocket({userId, videoId, status: "ready"});
+              }
+              catch(err){
+                console.error("❌ WebSocket notification failed:", err.message);
+              }
             } else {
               console.warn(`⚠️ No video found for videoId=${videoId}, userId=${userId}`);
             }

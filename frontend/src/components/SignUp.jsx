@@ -1,18 +1,25 @@
 import { useState } from "react";
 import { signUp, confirmSignUp, resendSignUpCode } from "aws-amplify/auth";
 import { useNavigate } from "react-router-dom";
+// import { fetchUserAttributes } from "aws-amplify/auth";
+import axios from "axios";
+
+const userServiceBaseUrl = `${import.meta.env.VITE_USERAPI_BASE_URL}/users`;
 export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [code, setCode] = useState("");
   const [step, setStep] = useState("signup");
   const [loading, setLoading] = useState(false);
+  const [cognitoId, setCognitoId] = useState(null);
   const navigate = useNavigate();
   // 🟦 Signup handler
   const handleSignUp = async () => {
     try {
       setLoading(true);
-      await signUp({ username: email, password });
+      const result = await signUp({ username: email, password });
+      setCognitoId(result.userId);
+      console.log("Signup result:", result);
       alert("Signup successful! Check your email for the verification code.");
       setStep("confirm");
     } catch (err) {
@@ -26,7 +33,13 @@ export default function SignUp() {
   const handleConfirm = async () => {
     try {
       setLoading(true);
+      console.log("Email confirmed for:", email);
+      console.log("Cognito ID:", cognitoId);
       await confirmSignUp({ username: email, confirmationCode: code });
+      await axios.post(`${userServiceBaseUrl}/signUp`, {
+        id: cognitoId || null,
+        email: email,
+      });
       alert("Account verified! You can now log in.");
       setStep("done");
       setTimeout(() => {
@@ -103,7 +116,13 @@ export default function SignUp() {
           <button
             onClick={handleResendCode}
             disabled={loading}
-            className="text-blue-600 underline mt-2 disabled:opacity-50"
+            className="
+    mt-3 text-sm font-medium text-blue-600
+    hover:text-blue-700 hover:underline
+    disabled:opacity-40 disabled:cursor-not-allowed
+    transition-all duration-200 ease-in-out
+    focus:outline-none focus:ring-2 focus:ring-blue-300 focus:ring-offset-2
+  "
           >
             Resend Verification Code
           </button>

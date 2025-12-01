@@ -3,7 +3,7 @@ import { db } from "../db.js";
 // Create a new user (sign-up)
  const createUser = async (req, res) => {
   try {
-    const { id, email, name } = req.body;
+    const { id, email } = req.body;
 
     if (!id || !email) {
       return res.status(400).json({ message: "id and email are required" });
@@ -16,8 +16,8 @@ import { db } from "../db.js";
     }
 
     await db.query(
-      "INSERT INTO users (id, email, name) VALUES (?, ?, ?)",
-      [id, email, name || null]
+      "INSERT INTO users (id, email) VALUES (?, ?)",
+      [id, email]
     );
 
     return res.status(201).json({ message: "User created successfully" });

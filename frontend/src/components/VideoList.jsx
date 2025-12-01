@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../components/api/axiosClient";
 import VideoPlayer from "./VideoPlayer";
+import { useWebSocket } from "../context/webSocketContext";
 
 const VideoList = () => {
   const [videos, setVideos] = useState([]);
@@ -9,13 +10,14 @@ const VideoList = () => {
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState("");
   const [selectedVideo, setSelectedVideo] = useState(null);
-
+  const { videoStatuses } = useWebSocket();
   // ✅ Fetch all videos (paginated)
   const fetchVideos = async (pageNum = 1) => {
     setLoading(true);
     try {
       const { data } = await api.get(`/videos?page=${pageNum}&limit=6`);
-      console.log("Fetched videos data:", data);
+      // console.log("Fetched videos data:", data);
+      console.log("vid array",videos);
       setVideos(data?.data ?? []);
       setPages(data?.pages ?? 1);
       setPage(pageNum);
@@ -57,6 +59,51 @@ const VideoList = () => {
   useEffect(() => {
     fetchVideos();
   }, []);
+
+
+useEffect(() => {
+  const fetchUpdatedVideos = async () => {
+    const updatedList = []; // store full fetched data for "ready" only
+
+    // Fetch full data for ready videos
+    for (const id in videoStatuses) {
+      const status = videoStatuses[id];
+
+      if (status === "ready") {
+        try {
+          const res = await api.get(`/videos/${id}`);
+          updatedList.push(res.data);
+        } catch (e) {
+          console.error("Error fetching video:", e);
+        }
+      }
+    }
+
+    // Update videos array
+    setVideos((prev) =>
+      prev.map((v) => {
+        const incomingStatus = videoStatuses[v.id];
+
+        // If no status update → keep same video
+        if (!incomingStatus) return v;
+
+        // If ready → use fetched full updated object
+        if (incomingStatus === "ready") {
+          const updated = updatedList.find((u) => u.id === v.id);
+          return updated ? { ...v, ...updated } : v;
+        }
+
+        // If processing / failed / queued → only update status
+        return { ...v, status: incomingStatus };
+      })
+    );
+  };
+
+  fetchUpdatedVideos();
+}, [videoStatuses]);
+
+
+
 
   return (
     <div className="p-6 min-h-screen bg-gray-900 text-white">

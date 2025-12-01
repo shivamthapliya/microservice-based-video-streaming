@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Amplify } from "aws-amplify";
 import awsconfig from "./aws-exports";
 import App from "./App";
+import {WebSocketProvider} from "./context/webSocketContext";
 import "./index.css";
 
 // ✅ Correct Amplify configuration for custom bucket in Amplify v6+
@@ -21,6 +22,8 @@ Amplify.configure(awsconfig);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
+    <WebSocketProvider>
     <App />
+  </WebSocketProvider>
   </BrowserRouter>
 );
