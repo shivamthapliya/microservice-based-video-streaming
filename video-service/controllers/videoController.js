@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 // Setup multer to parse file uploads
-const upload = multer();
+const upload = multer();//stores in ram memory
 
 // AWS S3 client
 const s3 = new S3Client({
@@ -103,7 +103,13 @@ export const createVideo = async (req, res) => {
         message: `Invalid file type. Allowed types: ${allowedMimeTypes.join(", ")}`,
       });
     }
-
+    
+    const MAX_SIZE = 10 * 1024 * 1024; // 10 MB
+    if (file.size > MAX_SIZE) {
+      return res.status(400).json({
+        message: "Thumbnail file is too large. Maximum allowed size is 10MB.",
+      });
+    }
     // --- Upload thumbnail to metadata-bucket-abs ---
     const bucket = process.env.OUTPUT_BUCKET; // metadata-bucket-abs
     const region = process.env.AWS_REGION;

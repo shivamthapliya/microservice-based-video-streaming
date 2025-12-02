@@ -1,17 +1,22 @@
-// src/context/WebSocketContext.jsx
 import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { fetchUserAttributes } from "aws-amplify/auth";
 
 export const WebSocketContext = createContext(null);
-
 export const useWebSocket = () => useContext(WebSocketContext);
 
 export function WebSocketProvider({ children }) {
   const [videoStatuses, setVideoStatuses] = useState({});
   const wsRef = useRef(null);
+  
+  // IMPORTANT: track mounted state
+  const isMounted = useRef(true);
 
   useEffect(() => {
+    isMounted.current = true;
+
     const connectWS = async () => {
+      if (!isMounted.current) return; // ⛔ Prevent reconnect after unmount
+
       try {
         const user = await fetchUserAttributes();
         const userId = user.sub;
@@ -20,13 +25,15 @@ export function WebSocketProvider({ children }) {
         wsRef.current = ws;
 
         ws.onopen = () => {
+          if (!isMounted.current) return; 
           ws.send(JSON.stringify({ action: "register", userId }));
         };
 
         ws.onmessage = (message) => {
+          if (!isMounted.current) return;
+          console.log("WS MESSAGE:", message.data);
           try {
             const data = JSON.parse(message.data);
-
             if (data.event === "video-transcoded") {
               setVideoStatuses((prev) => ({
                 ...prev,
@@ -41,9 +48,11 @@ export function WebSocketProvider({ children }) {
         ws.onerror = console.error;
 
         ws.onclose = () => {
+          if (!isMounted.current) return; // ⛔ stop retrying after unmount
           console.warn("WS CLOSED - retrying in 3s...");
           setTimeout(connectWS, 3000);
         };
+
       } catch (err) {
         console.error("WS INIT FAILED:", err);
       }
@@ -51,7 +60,12 @@ export function WebSocketProvider({ children }) {
 
     connectWS();
 
-    return () => wsRef.current?.close();
+    // Cleanup on unmount
+    return () => {
+      isMounted.current = false;
+      wsRef.current?.close();
+    };
+
   }, []);
 
   return (

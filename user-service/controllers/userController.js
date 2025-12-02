@@ -4,7 +4,7 @@ import { db } from "../db.js";
  const createUser = async (req, res) => {
   try {
     const { id, email } = req.body;
-
+    console.log("Creating user with ID:", id, "and email:", email);
     if (!id || !email) {
       return res.status(400).json({ message: "id and email are required" });
     }

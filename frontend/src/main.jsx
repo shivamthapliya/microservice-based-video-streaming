@@ -22,8 +22,8 @@ Amplify.configure(awsconfig);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <BrowserRouter>
-    <WebSocketProvider>
+    {/* <WebSocketProvider> */}
     <App />
-  </WebSocketProvider>
+  {/* </WebSocketProvider> */}
   </BrowserRouter>
 );
