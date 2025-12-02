@@ -216,7 +216,7 @@ useEffect(() => {
               onClick={() => fetchVideos(page - 1)}
               className="bg-gray-700 px-4 py-2 rounded-lg hover:bg-gray-800"
             >
-              ◀ Previous
+              Previous
             </button>
           )}
 
@@ -229,7 +229,7 @@ useEffect(() => {
               onClick={() => fetchVideos(page + 1)}
               className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700"
             >
-              Next ▶
+              Next
             </button>
           )}
         </div>
