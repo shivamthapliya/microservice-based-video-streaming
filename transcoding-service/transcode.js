@@ -91,9 +91,9 @@ async function pollSQS() {
           try {
             const [result] = await db.query(
               `UPDATE videos 
-               SET status = ?, master_url = ?, updated_at = NOW(), description = ?
+               SET status = ?, master_url = ?, updated_at = NOW()
                WHERE id = ? AND user_id = ?`,
-              ["ready", masterUrl, "Transcoded successfully", videoId, userId]
+              ["ready", masterUrl, videoId, userId]
             );
 
             if (result.affectedRows > 0) {

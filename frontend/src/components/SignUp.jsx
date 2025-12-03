@@ -107,7 +107,7 @@ export default function SignUp() {
   // UI BELOW — UNCHANGED (Your new design)
   // ===========================================================
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-500 via-indigo-50 to-purple-50 py-12 px-4 flex items-center justify-center">
+    <div className="h-[calc(100vh-64px)] bg-gradient-to-br from-blue-500 via-indigo-50 to-purple-50 py-12 px-4 flex items-center justify-center">
       <div className="max-w-md w-full">
 
         {/* Logo/Header Section */}

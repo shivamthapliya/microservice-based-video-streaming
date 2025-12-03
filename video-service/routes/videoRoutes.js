@@ -1,7 +1,7 @@
 import express from "express";
 import {
   getAllVideos,
-  getVideosByUser,
+  getVideosByTitle,
   deleteVideo,
   createVideo,
   getVideoById,
@@ -11,7 +11,7 @@ import { uploadMiddleware } from "../controllers/videoController.js";
 const router = express.Router();
 
 router.get("/", getAllVideos);
-router.get("/user/:user_id", getVideosByUser);
+router.get("/user/:title", getVideosByTitle);
 router.post("/", uploadMiddleware, createVideo);   // ✅ new route
 router.delete("/:id", deleteVideo);
 router.get("/:id", getVideoById);

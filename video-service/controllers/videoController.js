@@ -47,20 +47,37 @@ export const getAllVideos = async (req, res) => {
  * @desc Get videos by user_id
  * @route GET /videos/user/:user_id
  */
-export const getVideosByUser = async (req, res) => {
+export const getVideosByTitle = async (req, res) => {
   try {
-    const { user_id } = req.params;
-    const [videos] = await pool.query("SELECT * FROM videos WHERE user_id = ? ORDER BY created_at DESC", [user_id]);
+    const { title } = req.params;
 
-    if (videos.length === 0)
-      return res.status(404).json({ message: "No videos found for this user" });
+    const [videos] = await pool.query(
+      `
+      SELECT
+        v.*,
+        u.email AS user_email,
+        u.name  AS user_name
+      FROM videos v
+      INNER JOIN users u
+        ON v.user_id = u.id
+      WHERE v.title LIKE ?
+      ORDER BY v.created_at DESC
+      `,
+      [`%${title}%`]  // <-- search ANYWHERE in the title
+    );
+
+    if (videos.length === 0) {
+      return res.status(404).json({ message: "No videos found with this title" });
+    }
 
     res.status(200).json(videos);
   } catch (error) {
-    console.error("Error fetching videos by user:", error);
+    console.error("Error searching videos by title:", error);
     res.status(500).json({ message: "Server error", error });
   }
 };
+
+
 
 
 /**
